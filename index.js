@@ -1,24 +1,12 @@
-const express = require('express');
-const git = require('simple-git')();
-const setupRepo = require('./actions/setupRepo');
-const createFrontendComponent = require('./actions/createFrontendComponent');
-
-const app = express();
-app.use(express.json());
-
-const REPO_DIR = '.';
-
 app.post('/execute', async (req, res) => {
   const { command } = req.body;
+  console.log('📥 Received command:', command);
 
   if (!command) {
     return res.status(400).json({ error: 'Command is required.' });
   }
 
   try {
-    console.log(`Executing command: ${command}`);
-    await setupRepo();
-
     if (command.trim() === '/create dashboard frontend') {
       const componentName = 'Dashboard';
       await createFrontendComponent(componentName, REPO_DIR);
@@ -33,10 +21,6 @@ app.post('/execute', async (req, res) => {
     return res.status(400).json({ error: 'Unsupported command.' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to execute command.' });
+    return res.status(500).json({ error: 'Failed to execute command.' });
   }
-});
-
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
 });
