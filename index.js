@@ -1,6 +1,8 @@
 app.post('/execute', async (req, res) => {
   const { command } = req.body;
 
+  console.log('Received command:', command); // 🧠 this helps debug the input from Zapier
+
   if (!command) {
     return res.status(400).json({ error: 'Command is required.' });
   }
@@ -8,7 +10,7 @@ app.post('/execute', async (req, res) => {
   try {
     await setupRepo();
 
-    if (command.startsWith('//create dashboard frontend')) {
+    if (command.trim() === '//create dashboard frontend') {
       const componentName = 'Dashboard';
       await createFrontendComponent(componentName, REPO_DIR);
 
@@ -19,7 +21,7 @@ app.post('/execute', async (req, res) => {
       return res.status(200).json({ message: `${componentName} component created and pushed.` });
     }
 
-    res.status(400).json({ error: 'Unsupported command.' });
+    return res.status(400).json({ error: 'Unsupported command.' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to execute command.' });
