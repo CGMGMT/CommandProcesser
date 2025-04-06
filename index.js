@@ -1,31 +1,3 @@
-require('dotenv').config();
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const simpleGit = require('simple-git');
-const { createFrontendComponent } = require('./actions/createFrontendComponent');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-
-const REPO_DIR = path.join(__dirname, 'repos', process.env.GITHUB_REPO);
-const REPO_URL = `https://${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_USERNAME}/${process.env.GITHUB_REPO}.git`;
-
-let git; // We'll initialize this after the folder exists
-
-async function setupRepo() {
-  if (!fs.existsSync(REPO_DIR)) {
-    fs.mkdirSync(REPO_DIR, { recursive: true });
-    git = simpleGit(); // temp init just to clone
-    await git.clone(REPO_URL, REPO_DIR);
-  }
-
-  // Now that the repo exists, point git to the right folder
-  git = simpleGit(REPO_DIR);
-}
-
 app.post('/execute', async (req, res) => {
   const { command } = req.body;
 
@@ -53,8 +25,3 @@ app.post('/execute', async (req, res) => {
     res.status(500).json({ error: 'Failed to execute command.' });
   }
 });
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
-
