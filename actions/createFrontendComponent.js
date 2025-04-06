@@ -22,4 +22,4 @@ async function createFrontendComponent(name, repoDir) {
   }
 }
 
-module.exports = createFrontendComponent;
+module.exports = { createFrontendComponent };
