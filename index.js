@@ -1,10 +1,19 @@
+const express = require('express');
+const app = express();
+const git = require('simple-git')();
+const { createFrontendComponent } = require('./actions/createFrontendComponent');
+const REPO_DIR = '.'; // Adjust if needed
+
+app.use(express.json());
+
 app.post('/execute', async (req, res) => {
   const { command } = req.body;
-  console.log('📥 Received command:', command);
 
   if (!command) {
     return res.status(400).json({ error: 'Command is required.' });
   }
+
+  console.log('Received command:', command);
 
   try {
     if (command.trim() === '/create dashboard frontend') {
@@ -23,4 +32,9 @@ app.post('/execute', async (req, res) => {
     console.error(err);
     return res.status(500).json({ error: 'Failed to execute command.' });
   }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Command processor running on port ${PORT}`);
 });
