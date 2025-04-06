@@ -1,7 +1,13 @@
+const express = require('express');
+const git = require('simple-git')();
+const { createFrontendComponent } = require('./actions/createFrontendComponent');
+const { setupRepo, REPO_DIR } = require('./actions/setupRepo');
+
+const app = express();
+app.use(express.json());
+
 app.post('/execute', async (req, res) => {
   const { command } = req.body;
-
-  console.log('Received command:', command); // 🧠 this helps debug the input from Zapier
 
   if (!command) {
     return res.status(400).json({ error: 'Command is required.' });
@@ -9,6 +15,7 @@ app.post('/execute', async (req, res) => {
 
   try {
     await setupRepo();
+    console.log('Received command:', command); // Log the command
 
     if (command.trim() === '//create dashboard frontend') {
       const componentName = 'Dashboard';
@@ -24,6 +31,11 @@ app.post('/execute', async (req, res) => {
     return res.status(400).json({ error: 'Unsupported command.' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to execute command.' });
+    return res.status(500).json({ error: 'Failed to execute command.' });
   }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
