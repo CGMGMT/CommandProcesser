@@ -3,19 +3,8 @@ const path = require('path');
 
 function generateComponentCode(name) {
   return `
-import React from 'react';
-
-const ${name} = () => {
-  return (
-    <div>
-      <h1>${name} Component</h1>
-      {/* Future enhancements from AI will go here */}
-    </div>
-  );
-};
-
-export default ${name};
-`;
+    export default ${name};
+  `;
 }
 
 async function createFrontendComponent(name, repoDir) {
@@ -33,4 +22,4 @@ async function createFrontendComponent(name, repoDir) {
   }
 }
 
-module.exports = { createFrontendComponent };
+module.exports = createFrontendComponent;
