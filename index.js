@@ -12,13 +12,18 @@ app.use(express.json());
 
 const REPO_DIR = path.join(__dirname, 'repos', process.env.GITHUB_REPO);
 const REPO_URL = `https://${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_USERNAME}/${process.env.GITHUB_REPO}.git`;
-const git = simpleGit(REPO_DIR);
+
+let git; // We'll initialize this after the folder exists
 
 async function setupRepo() {
   if (!fs.existsSync(REPO_DIR)) {
     fs.mkdirSync(REPO_DIR, { recursive: true });
+    git = simpleGit(); // temp init just to clone
     await git.clone(REPO_URL, REPO_DIR);
   }
+
+  // Now that the repo exists, point git to the right folder
+  git = simpleGit(REPO_DIR);
 }
 
 app.post('/execute', async (req, res) => {
@@ -52,3 +57,4 @@ app.post('/execute', async (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
