@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { createFrontendComponent } = require('./actions/createFrontendComponent');
-const setupRepo = require('./setupRepo');
+const setupRepo = require('./actions/setupRepo'); // ✅ Corrected import path
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,24 +20,26 @@ app.post('/execute', async (req, res) => {
   const parts = command.replace('/', '').split(' ');
   const [action, target, type] = parts;
 
-  if (action === 'create' && target && type) {
-    const fileName = `${target.charAt(0).toUpperCase() + target.slice(1)}${type.charAt(0).toUpperCase() + type.slice(1)}.js`;
-    const path = `./gym-components/${fileName}`;
+  console.log(`Parsed command ➤ Action: ${action}, Target: ${target}, Type: ${type}`);
 
-    try {
-      console.log(`Generating component: ${fileName} at path: ${path}`);
-      await createFrontendComponent(fileName, path);
-      res.status(200).json({ message: 'Component generated and pushed successfully.' });
-    } catch (err) {
-      console.error("Error during generation/push:", err);
-      res.status(500).json({ error: 'Generation or push failed.' });
+  try {
+    await setupRepo(); // Clone/pull the frontend repo
+
+    if (action === 'create') {
+      const componentName = `${target.charAt(0).toUpperCase() + target.slice(1)}${type.charAt(0).toUpperCase() + type.slice(1)}`;
+      console.log(`Generating component: ${componentName}.tsx`);
+
+      await createFrontendComponent(componentName, './temp-repo'); // Output path used in setupRepo
+      return res.status(200).json({ message: 'Component generated and committed successfully.' });
     }
-  } else {
-    res.status(400).json({ error: 'Invalid command structure.' });
+
+    res.status(400).json({ error: 'Unknown action.' });
+  } catch (err) {
+    console.error('Execution error:', err);
+    res.status(500).json({ error: 'Command execution failed.' });
   }
 });
 
-app.listen(PORT, async () => {
-  console.log(`Command processor running on port ${PORT}`);
-  await setupRepo(); // Clones/pulls repo before accepting commands
+app.listen(PORT, () => {
+  console.log(`🧠 Autoflow CommandProcessor running on port ${PORT}`);
 });
