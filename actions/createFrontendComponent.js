@@ -6,7 +6,6 @@ const REPO_URL = `https://${process.env.GITHUB_TOKEN}@github.com/${process.env.G
 const REPO_DIR = './temp-frontend-repo';
 const FILE_DIR = 'src';
 const USER_NAME = process.env.GITHUB_USERNAME;
-const TOKEN = process.env.GITHUB_TOKEN;
 
 async function createFrontendComponent(componentName) {
   const fileName = `${componentName}Frontend.tsx`;
@@ -25,10 +24,10 @@ export default ${componentName}Frontend;
 
   try {
     if (!fs.existsSync(REPO_DIR)) {
-      console.log('Cloning GymSync-Frontend repo...');
+      console.log('📦 Cloning GymSync-Frontend repo...');
       await git.clone(REPO_URL, REPO_DIR);
     } else {
-      console.log('Pulling latest changes...');
+      console.log('🔄 Pulling latest changes...');
       await git.cwd(REPO_DIR).pull();
     }
 
@@ -38,7 +37,7 @@ export default ${componentName}Frontend;
     await git.cwd(REPO_DIR)
       .addConfig('user.name', USER_NAME)
       .addConfig('user.email', `${USER_NAME}@autoflow.com`)
-      .add('.')
+      .add('./*')
       .commit(`Add ${fileName} via Autoflow`)
       .push('origin', 'main');
 
