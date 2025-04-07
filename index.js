@@ -1,30 +1,12 @@
-require('dotenv').config();
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const simpleGit = require('simple-git');
+const bodyParser = require('body-parser');
 const { createFrontendComponent } = require('./actions/createFrontendComponent');
+const setupRepo = require('./setupRepo');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-
-const REPO_DIR = path.join(__dirname, 'repos', process.env.GITHUB_REPO);
-const REPO_URL = `https://${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_USERNAME}/${process.env.GITHUB_REPO}.git`;
-const git = simpleGit();
-
-async function setupRepo() {
-  console.log(`Checking if repo exists at ${REPO_DIR}`);
-  if (!fs.existsSync(REPO_DIR)) {
-    fs.mkdirSync(REPO_DIR, { recursive: true });
-    console.log('Cloning repo...');
-    await git.clone(REPO_URL, REPO_DIR);
-  } else {
-    console.log('Repo already exists, pulling latest...');
-    await git.cwd(REPO_DIR).pull();
-  }
-}
+app.use(bodyParser.json());
 
 app.post('/execute', async (req, res) => {
   const { command } = req.body;
@@ -36,4 +18,26 @@ app.post('/execute', async (req, res) => {
   console.log(`Received command: ${command}`);
 
   const parts = command.replace('/', '').split(' ');
-  const [
+  const [action, target, type] = parts;
+
+  if (action === 'create' && target && type) {
+    const fileName = `${target.charAt(0).toUpperCase() + target.slice(1)}${type.charAt(0).toUpperCase() + type.slice(1)}.js`;
+    const path = `./gym-components/${fileName}`;
+
+    try {
+      console.log(`Generating component: ${fileName} at path: ${path}`);
+      await createFrontendComponent(fileName, path);
+      res.status(200).json({ message: 'Component generated and pushed successfully.' });
+    } catch (err) {
+      console.error("Error during generation/push:", err);
+      res.status(500).json({ error: 'Generation or push failed.' });
+    }
+  } else {
+    res.status(400).json({ error: 'Invalid command structure.' });
+  }
+});
+
+app.listen(PORT, async () => {
+  console.log(`Command processor running on port ${PORT}`);
+  await setupRepo(); // Clones/pulls repo before accepting commands
+});
