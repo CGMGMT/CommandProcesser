@@ -17,13 +17,12 @@ const setupRepo = async () => {
     throw new Error('Missing GitHub credentials in environment variables');
   }
 
-  // Clean URL without trailing slash
+  // Clone the correct branch
   const remote = `https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHUB_REPO}.git`;
-
   const git = simpleGit();
 
-  console.log(`📥 Cloning ${GITHUB_REPO} repo...`);
-  await git.clone(remote, tempPath);
+  console.log(`🔄 Cloning ${GITHUB_REPO} repo...`);
+  await git.clone(remote, tempPath, ['-b', 'master']);
   console.log('✅ Clone complete.');
 };
 
