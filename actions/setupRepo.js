@@ -17,18 +17,21 @@ const setupRepo = async () => {
     throw new Error('Missing GitHub credentials in environment variables');
   }
 
+  // Remote URL
   const remote = `https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHUB_REPO}.git`;
+
   const git = simpleGit();
 
-  console.log(`🔁 Cloning ${GITHUB_REPO} repo...`);
+  // Clone and init
+  console.log(`📦 Cloning ${GITHUB_REPO} repo...`);
   await git.clone(remote, tempPath);
   console.log('✅ Clone complete.');
 
-  // 👇 NEW: Set Git author identity
-  await git.addConfig('user.name', 'CGMGMT');
-  await git.addConfig('user.email', 'dev@gymsync.app');
+  // Init git (required to fix --local error)
+  await git.cwd(tempPath);
+  await git.init();
 
-  console.log('🧠 Git user identity set.');
+  return tempPath;
 };
 
 module.exports = setupRepo;
