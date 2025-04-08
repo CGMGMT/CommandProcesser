@@ -43,7 +43,7 @@ export default ${componentName}Frontend;
       .addConfig('user.email', `${USER_NAME}@autoflow.com`)
       .add('./*')
       .commit(`Add ${fileName} via Autoflow`)
-      .push('origin', 'main');
+      .push('origin', 'master');
 
     console.log(`🚀 ${fileName} pushed to GymSync-Frontend`);
   } catch (error) {
