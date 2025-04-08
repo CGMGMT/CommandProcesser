@@ -1,39 +1,24 @@
-const fs = require('fs');
-const path = require('path');
-const simpleGit = require('simple-git');
-
 const setupRepo = async () => {
-  const tempPath = './temp-frontend-repo';
+  const simpleGit = require('simple-git');
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
 
-  // Clean up old clone
-  if (fs.existsSync(tempPath)) {
-    fs.rmSync(tempPath, { recursive: true });
-  }
+  // Remote URL
+  const remote = `https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_USERNAME}/${process.env.GITHUB_REPO}.git`;
 
-  // Load credentials
-  const { GITHUB_USERNAME, GITHUB_REPO, GITHUB_TOKEN } = process.env;
-
-  if (!GITHUB_USERNAME || !GITHUB_REPO || !GITHUB_TOKEN) {
-    throw new Error('Missing GitHub credentials in environment variables');
-  }
-
-  // ✅ Clone repo
-  const remote = `https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHUB_REPO}.git`;
   const git = simpleGit();
-  console.log(`🌀 Cloning ${GITHUB_REPO} repo...`);
+
+  // Clone and init
+  const tempPath = fs.mkdtempSync(path.join(os.tmpdir(), 'temp-frontend-repo-'));
+  console.log(`📦 Cloning ${process.env.GITHUB_REPO} repo...`);
   await git.clone(remote, tempPath);
   console.log('✅ Clone complete.');
 
-  // ✅ Switch to the temp repo and init if needed
-  const repoGit = simpleGit(tempPath);
-  await repoGit.cwd(tempPath);
-
-  // Initialize git (required for some environments)
-  await repoGit.init();
-
-  // ✅ Fix author config
-  await repoGit.addConfig('user.email', 'you@example.com');
-  await repoGit.addConfig('user.name', 'Autoflow Bot');
+  // Init Git (required to fix --local error)
+  await git.cwd(tempPath);
+  await git.init();
+  await git.checkoutLocalBranch('master');
 
   return tempPath;
 };
