@@ -12,6 +12,7 @@ const setupRepo = async () => {
 
   // Load credentials
   const { GITHUB_USERNAME, GITHUB_REPO, GITHUB_TOKEN } = process.env;
+
   if (!GITHUB_USERNAME || !GITHUB_REPO || !GITHUB_TOKEN) {
     throw new Error('Missing GitHub credentials in environment variables');
   }
@@ -21,16 +22,13 @@ const setupRepo = async () => {
 
   console.log(`🔁 Cloning ${GITHUB_REPO} repo...`);
   await git.clone(remote, tempPath);
-  console.log(`✅ Clone complete.`);
+  console.log('✅ Clone complete.');
 
-  // Commit changes
-  const repo = simpleGit(tempPath);
-  await repo.add('./*');
-  await repo.commit(`Update from Autoflow at ${new Date().toISOString()}`);
+  // 👇 NEW: Set Git author identity
+  await git.addConfig('user.name', 'CGMGMT');
+  await git.addConfig('user.email', 'dev@gymsync.app');
 
-  // ✅ Push to master instead of main
-  await repo.push('origin', 'master', ['--verbose', '--porcelain']);
-  console.log(`🚀 Repo updated and pushed successfully.`);
+  console.log('🧠 Git user identity set.');
 };
 
 module.exports = setupRepo;
