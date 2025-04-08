@@ -12,30 +12,25 @@ const setupRepo = async () => {
 
   // Load credentials
   const { GITHUB_USERNAME, GITHUB_REPO, GITHUB_TOKEN } = process.env;
-
   if (!GITHUB_USERNAME || !GITHUB_REPO || !GITHUB_TOKEN) {
     throw new Error('Missing GitHub credentials in environment variables');
   }
 
-  // Clean URL without trailing slash
   const remote = `https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHUB_REPO}.git`;
   const git = simpleGit();
 
-  console.log(`📥 Cloning ${GITHUB_REPO} repo...`);
+  console.log(`🔁 Cloning ${GITHUB_REPO} repo...`);
   await git.clone(remote, tempPath);
-  console.log('✅ Clone complete.');
+  console.log(`✅ Clone complete.`);
 
-  // Re-init git and set remote inside temp repo
-  const tempGit = simpleGit(tempPath);
-  await tempGit.addConfig('user.name', 'autoflow[bot]');
-  await tempGit.addConfig('user.email', 'autoflow@example.com');
-  await tempGit.add('./*');
-  await tempGit.commit('Autoflow update');
-  
-  // ✅ FIXED: Push to master
-  await tempGit.push('origin', 'master', { '--verbose': null, '--porcelain': null });
+  // Commit changes
+  const repo = simpleGit(tempPath);
+  await repo.add('./*');
+  await repo.commit(`Update from Autoflow at ${new Date().toISOString()}`);
 
-  console.log('🚀 Repo updated and pushed successfully.');
+  // ✅ Push to master instead of main
+  await repo.push('origin', 'master', ['--verbose', '--porcelain']);
+  console.log(`🚀 Repo updated and pushed successfully.`);
 };
 
 module.exports = setupRepo;
