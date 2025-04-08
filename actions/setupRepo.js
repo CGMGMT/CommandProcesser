@@ -17,19 +17,23 @@ const setupRepo = async () => {
     throw new Error('Missing GitHub credentials in environment variables');
   }
 
-  // Remote URL
+  // ✅ Clone repo
   const remote = `https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHUB_REPO}.git`;
-
   const git = simpleGit();
-
-  // Clone and init
-  console.log(`📦 Cloning ${GITHUB_REPO} repo...`);
+  console.log(`🌀 Cloning ${GITHUB_REPO} repo...`);
   await git.clone(remote, tempPath);
   console.log('✅ Clone complete.');
 
-  // Init git (required to fix --local error)
-  await git.cwd(tempPath);
-  await git.init();
+  // ✅ Switch to the temp repo and init if needed
+  const repoGit = simpleGit(tempPath);
+  await repoGit.cwd(tempPath);
+
+  // Initialize git (required for some environments)
+  await repoGit.init();
+
+  // ✅ Fix author config
+  await repoGit.addConfig('user.email', 'you@example.com');
+  await repoGit.addConfig('user.name', 'Autoflow Bot');
 
   return tempPath;
 };
