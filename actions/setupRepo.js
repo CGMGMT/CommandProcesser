@@ -11,6 +11,7 @@ const setupRepo = async () => {
   }
 
   const { GITHUB_USERNAME, GITHUB_REPO, GITHUB_TOKEN } = process.env;
+
   if (!GITHUB_USERNAME || !GITHUB_REPO || !GITHUB_TOKEN) {
     throw new Error('Missing GitHub credentials in environment variables');
   }
@@ -18,9 +19,9 @@ const setupRepo = async () => {
   const remote = `https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHUB_REPO}.git`;
   const git = simpleGit();
 
-  console.log(`📥 Cloning ${GITHUB_REPO} repo...`);
+  console.log(`🔃 Cloning ${GITHUB_REPO} repo...`);
   await git.clone(remote, tempPath);
-  console.log('✅ Clone complete.');
+  console.log(`✅ Clone complete.`);
 };
 
 module.exports = setupRepo;
