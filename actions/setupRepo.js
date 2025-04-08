@@ -25,18 +25,17 @@ const setupRepo = async () => {
   await git.clone(remote, tempPath);
   console.log('✅ Clone complete.');
 
-  // Change directory into the temp repo
-  const componentPath = path.join(tempPath, 'src', 'DashboardFrontend.tsx');
-  fs.mkdirSync(path.dirname(componentPath), { recursive: true });
-  fs.writeFileSync(componentPath, '// TODO: Dashboard frontend component');
-
-  console.log('⚙️ Generating component: DashboardFrontend.tsx');
-
+  // Re-init git and set remote inside temp repo
   const tempGit = simpleGit(tempPath);
+  await tempGit.addConfig('user.name', 'autoflow[bot]');
+  await tempGit.addConfig('user.email', 'autoflow@example.com');
   await tempGit.add('./*');
-  await tempGit.commit('Add DashboardFrontend component');
-  await tempGit.push('origin', 'master', { '--verbose': null, '--porcelain': null }); // <- key fix
-  console.log('🚀 Component pushed to GitHub');
+  await tempGit.commit('Autoflow update');
+  
+  // ✅ FIXED: Push to master
+  await tempGit.push('origin', 'master', { '--verbose': null, '--porcelain': null });
+
+  console.log('🚀 Repo updated and pushed successfully.');
 };
 
 module.exports = setupRepo;
