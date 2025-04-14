@@ -43,8 +43,8 @@ export default ${componentName};
     // Commit and push
     const repoGit = simpleGit(REPO_DIR);
     await repoGit.add('.');
-    await repoGit.commit(\`Autoflow: Created ${componentName} component\`);
-    await repoGit.push('origin', 'master'); // ✅ Push to correct branch
+    await repoGit.commit(`Autoflow: Created ${componentName} component`);
+    await repoGit.push('origin', 'master'); // ✅ Correct branch name
     console.log(`🚀 Pushed ${componentName} to GitHub successfully.`);
 
   } catch (err) {
