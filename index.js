@@ -1,8 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-const { createFrontendComponent } = require('./actions/createFrontendComponent');
-const setupRepo = require('./actions/setupRepo');
+const { createFrontendComponent } = require('./createFrontendComponent'); // Updated path
 const logger = require('./logger');
 
 const app = express();
@@ -27,14 +26,14 @@ app.post('/execute', async (req, res) => {
   logger.info(`🔍 Parsed ➤ Action: ${action}, Target: ${target}, Type: ${type}`);
 
   try {
-    await setupRepo(); // Clone/pull the frontend repo
-
     if (action === 'create') {
       const componentName = `${target.charAt(0).toUpperCase() + target.slice(1)}${type.charAt(0).toUpperCase() + type.slice(1)}`;
       logger.info(`🛠️ Generating component: ${componentName}.tsx`);
-      await createFrontendComponent(componentName, './temp-frontend-repo');
+
+      await createFrontendComponent(componentName);
+
       logger.info(`✅ Component "${componentName}" generated and committed successfully.`);
-      return res.status(200).json({ message: 'Component generated and committed successfully.' });
+      return res.status(200).json({ message: `Component "${componentName}" generated and committed successfully.` });
     } else {
       const msg = `❌ Unknown action "${action}". Only "create" is supported.`;
       logger.warn(msg);
