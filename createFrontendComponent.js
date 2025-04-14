@@ -10,13 +10,16 @@ async function createFrontendComponent(componentName) {
   const git = simpleGit();
 
   try {
+    // Clean up existing cloned repo if present
     if (fs.existsSync(REPO_DIR)) {
       fs.rmSync(REPO_DIR, { recursive: true, force: true });
     }
 
+    // Clone the GymSync-Frontend repo
     await git.clone(REPO_URL, REPO_DIR);
     console.log(`✅ Cloned GymSync-Frontend into ${REPO_DIR}`);
 
+    // Create the component
     const fileName = `${componentName}.tsx`;
     const filePath = path.join(REPO_DIR, COMPONENT_PATH, fileName);
     const componentCode = `
@@ -37,10 +40,11 @@ export default ${componentName};
     fs.writeFileSync(filePath, componentCode);
     console.log(`✅ Created ${filePath}`);
 
+    // Commit and push
     const repoGit = simpleGit(REPO_DIR);
     await repoGit.add('.');
     await repoGit.commit(\`Autoflow: Created ${componentName} component\`);
-    await repoGit.push('origin', 'main');
+    await repoGit.push('origin', 'master'); // ✅ Push to correct branch
     console.log(`🚀 Pushed ${componentName} to GitHub successfully.`);
 
   } catch (err) {
