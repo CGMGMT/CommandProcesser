@@ -10,16 +10,17 @@ async function createFrontendComponent(componentName) {
   const git = simpleGit();
 
   try {
-    // Clean up existing cloned repo if present
+    // Clean up previous repo if it exists
     if (fs.existsSync(REPO_DIR)) {
       fs.rmSync(REPO_DIR, { recursive: true, force: true });
     }
 
-    // Clone the GymSync-Frontend repo
+    // Clone the frontend repo
+    console.log(`🌀 Cloning GymSync-Frontend...`);
     await git.clone(REPO_URL, REPO_DIR);
-    console.log(`✅ Cloned GymSync-Frontend into ${REPO_DIR}`);
+    console.log(`✅ Clone complete.`);
 
-    // Create the component
+    // Create the component file
     const fileName = `${componentName}.tsx`;
     const filePath = path.join(REPO_DIR, COMPONENT_PATH, fileName);
     const componentCode = `
@@ -38,14 +39,17 @@ export default ${componentName};
 `;
 
     fs.writeFileSync(filePath, componentCode);
-    console.log(`✅ Created ${filePath}`);
+    console.log(`✅ Component written to ${filePath}`);
 
     // Commit and push
     const repoGit = simpleGit(REPO_DIR);
     await repoGit.add('.');
     await repoGit.commit(`Autoflow: Created ${componentName} component`);
-    await repoGit.push('origin', 'master'); // ✅ Correct branch name
-    console.log(`🚀 Pushed ${componentName} to GitHub successfully.`);
+
+    console.log(`🚀 Attempting push to GitHub...`);
+    const pushResult = await repoGit.push('origin', 'master');
+    console.log(`📦 Push result:`, pushResult);
+    console.log(`✅ Pushed ${componentName} to GitHub successfully.`);
 
   } catch (err) {
     console.error('❌ Error during Autoflow push:', err);
