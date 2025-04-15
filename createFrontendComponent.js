@@ -10,20 +10,23 @@ async function createFrontendComponent(componentName) {
   const git = simpleGit();
 
   try {
-    // 🧼 Clean up any previous repo clone
+    // Clear previous clone
     if (fs.existsSync(REPO_DIR)) {
       fs.rmSync(REPO_DIR, { recursive: true, force: true });
     }
 
-    console.log('🌀 Cloning frontend repo...');
+    console.log('🌀 Cloning repo...');
     await git.clone(REPO_URL, REPO_DIR);
-    console.log('✅ Repo cloned to', REPO_DIR);
+    console.log('✅ Cloned repo.');
 
-    // 🧱 Ensure the components folder exists after cloning
     const componentDir = path.join(REPO_DIR, COMPONENT_PATH);
-    fs.mkdirSync(componentDir, { recursive: true });
 
-    // 🧾 Prepare the file
+    // Create src/components if it doesn't exist
+    if (!fs.existsSync(componentDir)) {
+      fs.mkdirSync(componentDir, { recursive: true });
+      console.log(`📁 Created folder: ${componentDir}`);
+    }
+
     const fileName = `${componentName}.tsx`;
     const filePath = path.join(componentDir, fileName);
     const componentCode = `
@@ -42,19 +45,16 @@ export default ${componentName};
 `;
 
     fs.writeFileSync(filePath, componentCode.trim());
-    console.log(`✅ Component file created at ${filePath}`);
+    console.log(`✅ Component written to: ${filePath}`);
 
-    // ✅ Git commit & push
     const repoGit = simpleGit(REPO_DIR);
-    await repoGit.add('.');
+    await repoGit.add('./*');
     await repoGit.commit(`Autoflow: Created ${componentName} component`);
     const pushResult = await repoGit.push('origin', 'master');
-    console.log('📦 Push result:', pushResult);
-
-    console.log(`✅ ${componentName} pushed to GitHub successfully.`);
+    console.log('🚀 Pushed to GitHub:', pushResult);
 
   } catch (err) {
-    console.error('❌ Autoflow push error:', err);
+    console.error('❌ Autoflow failure:', err.message || err);
   }
 }
 
