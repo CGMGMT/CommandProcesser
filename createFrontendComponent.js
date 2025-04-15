@@ -10,7 +10,6 @@ async function createFrontendComponent(componentName) {
   const git = simpleGit();
 
   try {
-    // Clear previous temp folder
     if (fs.existsSync(REPO_DIR)) {
       fs.rmSync(REPO_DIR, { recursive: true, force: true });
     }
@@ -23,12 +22,14 @@ async function createFrontendComponent(componentName) {
     const fileName = `${componentName}.tsx`;
     const filePath = path.join(componentDir, fileName);
 
-    // Create the folder if missing
+    // ✅ Ensure src/components exists
     if (!fs.existsSync(componentDir)) {
       fs.mkdirSync(componentDir, { recursive: true });
-      console.log(`📁 Created missing folder: ${componentDir}`);
+      fs.writeFileSync(path.join(componentDir, '.gitkeep'), ''); // helps git track folder
+      console.log(`📁 Created folder: ${componentDir}`);
     }
 
+    // ✅ Write the component
     const componentCode = `
 import React from 'react';
 
@@ -43,18 +44,18 @@ const ${componentName} = () => {
 
 export default ${componentName};
 `;
-
     fs.writeFileSync(filePath, componentCode.trim());
     console.log(`✅ File written: ${filePath}`);
 
+    // ✅ Push to GitHub
     const repoGit = simpleGit(REPO_DIR);
     await repoGit.add('./*');
     await repoGit.commit(`Autoflow: Created ${componentName} component`);
     const pushResult = await repoGit.push('origin', 'master');
-    console.log('🚀 Push complete:', pushResult);
+    console.log('🚀 Push result:', pushResult);
 
   } catch (err) {
-    console.error('❌ Error during Autoflow:', err.message || err);
+    console.error('❌ Autoflow push error:', err.message || err);
   }
 }
 
