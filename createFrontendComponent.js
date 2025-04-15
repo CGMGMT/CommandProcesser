@@ -20,9 +20,15 @@ async function createFrontendComponent(componentName) {
     await git.clone(REPO_URL, REPO_DIR);
     console.log(`✅ Clone complete.`);
 
-    // Create the component file
+    // Set up file and folder paths
+    const componentDir = path.join(REPO_DIR, COMPONENT_PATH);
     const fileName = `${componentName}.tsx`;
-    const filePath = path.join(REPO_DIR, COMPONENT_PATH, fileName);
+    const filePath = path.join(componentDir, fileName);
+
+    // Make sure the folder exists
+    fs.mkdirSync(componentDir, { recursive: true });
+
+    // Create the component file
     const componentCode = `
 import React from 'react';
 
@@ -47,7 +53,7 @@ export default ${componentName};
     await repoGit.commit(`Autoflow: Created ${componentName} component`);
 
     console.log(`🚀 Attempting push to GitHub...`);
-    const pushResult = await repoGit.push('origin', 'main'); // ✅ updated from 'master' to 'main'
+    const pushResult = await repoGit.push('origin', 'main');
     console.log(`📦 Push result:`, pushResult);
     console.log(`✅ Pushed ${componentName} to GitHub successfully.`);
 
