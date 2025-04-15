@@ -10,25 +10,23 @@ async function createFrontendComponent(componentName) {
   const git = simpleGit();
 
   try {
-    // Clean up previous repo if it exists
+    // Cleanup old repo if exists
     if (fs.existsSync(REPO_DIR)) {
       fs.rmSync(REPO_DIR, { recursive: true, force: true });
     }
 
-    // Clone the frontend repo
-    console.log(`🌀 Cloning GymSync-Frontend...`);
+    console.log('🌀 Cloning repo...');
     await git.clone(REPO_URL, REPO_DIR);
-    console.log(`✅ Clone complete.`);
+    console.log('✅ Repo cloned.');
 
-    // Set up file and folder paths
     const componentDir = path.join(REPO_DIR, COMPONENT_PATH);
     const fileName = `${componentName}.tsx`;
     const filePath = path.join(componentDir, fileName);
 
-    // Make sure the folder exists
+    // ✅ Ensure components folder exists
     fs.mkdirSync(componentDir, { recursive: true });
 
-    // Create the component file
+    // ✅ Generate component code
     const componentCode = `
 import React from 'react';
 
@@ -44,21 +42,21 @@ const ${componentName} = () => {
 export default ${componentName};
 `;
 
-    fs.writeFileSync(filePath, componentCode);
-    console.log(`✅ Component written to ${filePath}`);
+    // ✅ Write the component file
+    fs.writeFileSync(filePath, componentCode.trim());
+    console.log(`✅ File written to ${filePath}`);
 
-    // Commit and push
+    // ✅ Commit + Push
     const repoGit = simpleGit(REPO_DIR);
     await repoGit.add('.');
     await repoGit.commit(`Autoflow: Created ${componentName} component`);
+    const pushResult = await repoGit.push('origin', 'master');
 
-    console.log(`🚀 Attempting push to GitHub...`);
-    const pushResult = await repoGit.push('origin', 'main');
-    console.log(`📦 Push result:`, pushResult);
-    console.log(`✅ Pushed ${componentName} to GitHub successfully.`);
+    console.log('📦 Push result:', pushResult);
+    console.log(`✅ ${componentName} successfully pushed.`);
 
   } catch (err) {
-    console.error('❌ Error during Autoflow push:', err);
+    console.error('❌ Autoflow error:', err);
   }
 }
 
