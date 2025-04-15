@@ -47,7 +47,7 @@ export default ${componentName};
     await repoGit.commit(`Autoflow: Created ${componentName} component`);
 
     console.log(`🚀 Attempting push to GitHub...`);
-    const pushResult = await repoGit.push('origin', 'master');
+    const pushResult = await repoGit.push('origin', 'main'); // ✅ updated from 'master' to 'main'
     console.log(`📦 Push result:`, pushResult);
     console.log(`✅ Pushed ${componentName} to GitHub successfully.`);
 
