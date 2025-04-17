@@ -1,11 +1,11 @@
 {
-  "name": "gymsync-frontend-temp",
+  "name": "gymsync-frontend",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "preview": "vite preview --port $PORT"
   },
   "dependencies": {
     "react": "^18.2.0",
