@@ -1,8 +1,5 @@
 {
-    "build": {
-      "install": "cd gymsync-frontend-temp && npm install",
-      "build": "cd gymsync-frontend-temp && npm run build",
-      "output": "gymsync-frontend-temp/dist"
-    }
+  "build": {
+    "rootDirectory": "gymsync-frontend-temp"
   }
-  
+}
